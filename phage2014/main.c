@@ -33,6 +33,8 @@
 #include "phage-wdt.h"
 #include "phage-ui.h"
 
+#include "dsp.h"
+
 #define LED_COUNT 150
 
 static uint8_t framebuffer[LED_COUNT * 3];
@@ -47,23 +49,23 @@ static void shell_termination_handler(eventid_t id) {
 
 static void power_button_pressed_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, " [Button pressed] ");
+  //  chprintf(stream, " [Button pressed] ");
 }
 
 static void power_button_released_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, " [Button released] ");
+  //  chprintf(stream, " [Button released] ");
 }
 
 static void accel_int1_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, "A"); // reduce chatter, improve performance and stability but allow for debug
+  //  chprintf(stream, "A"); // reduce chatter, improve performance and stability but allow for debug
   bump(100);
 }
 
 static void accel_int2_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, " [Accel IRQ 2] ");
+  //  chprintf(stream, " [Accel IRQ 2] ");
 }
 
 
@@ -73,28 +75,28 @@ static void accel_int2_handler(eventid_t id) {
 
 static void key_up_handler(eventid_t id) { // right
   (void)id;
-  chprintf(stream, "R");
+  //  chprintf(stream, "R");
   //  effectsSetPattern(patternShoot);
   effectsNextPattern();
 }
 
 static void key_down_handler(eventid_t id) { // left
   (void)id;
-  chprintf(stream, "L");
+  //  chprintf(stream, "L");
   effectsPrevPattern();
   //  effectsSetPattern(patternCalm);
 }
 
 static void key_left_handler(eventid_t id) { // I call this "up"
   (void)id;
-  chprintf(stream, "U");
+  //  chprintf(stream, "U");
   //  effectsSetPattern(patternLarson);  // don't change effect, just page
 }
 
 static void key_right_handler(eventid_t id) {  // I call this "down"
   uint8_t s;
   (void)id;
-  chprintf(stream, "D");
+  //  chprintf(stream, "D");
   s = getShift();
   if (s > 3)
     s = 0;
@@ -104,19 +106,19 @@ static void key_right_handler(eventid_t id) {  // I call this "down"
 
 static void radio_carrier_detect_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, " [Radio Carrier Detect!!] ");
+  //  chprintf(stream, " [Radio Carrier Detect!!] ");
   effectsSetPattern(patternCalm);
 }
 
 static void radio_data_received_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, " [Radio Data Received!!] ");
+  //  chprintf(stream, " [Radio Data Received!!] ");
   effectsSetPattern(patternCalm);
 }
 
 static void radio_address_matched_handler(eventid_t id) {
   (void)id;
-  chprintf(stream, " [Radio Address Matched!!] ");
+  //  chprintf(stream, " [Radio Address Matched!!] ");
   effectsSetPattern(patternCalm);
 }
 
@@ -229,6 +231,7 @@ int main(void) {
   phageWatchdogInit();
 
   phageAdcInit();
+  startupVu();
 
   /* Start LED effects.*/
   effectsStart(framebuffer, LED_COUNT);
@@ -245,6 +248,12 @@ int main(void) {
   ledDriverStart(framebuffer);
 
   debugme();
+
+  uint8_t rxbuf[3];
+  radioGetRxPayload(rxbuf);  // one-time call to fix transmit issue
+
+  radioSend('z'); // waking up, send an off-character
+
   while (TRUE) 
     chEvtDispatch(event_handlers, chEvtWaitOne(ALL_EVENTS));
 

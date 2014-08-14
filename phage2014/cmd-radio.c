@@ -9,7 +9,7 @@
 
 void cmd_radio(BaseSequentialStream *chp, int argc, char *argv[])
 {
-  uint8_t dat[11];
+  uint8_t dat[12];
 
   (void)argv;
 
@@ -22,8 +22,8 @@ void cmd_radio(BaseSequentialStream *chp, int argc, char *argv[])
 
   chprintf(chp, "Status value: ");
   radioGetStatus(dat);
-  chprintf(chp, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\r\n",
-      dat[0], dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8], dat[9], dat[10]);
+  chprintf(chp, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\r\n",
+	   dat[0], dat[1], dat[2], dat[3], dat[4], dat[5], dat[6], dat[7], dat[8], dat[9], dat[10], dat[11]);
   chprintf(chp, "\r\n");
 
   chprintf(chp, "TX address: 0x%08x\r\n", radioGetAddress());

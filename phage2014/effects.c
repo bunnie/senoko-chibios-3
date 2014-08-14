@@ -13,6 +13,9 @@
 
 #include "chprintf.h"
 #include "phage.h"
+#include "phage-adc.h"
+
+#include "dsp.h"
 
 #include <math.h>
 
@@ -23,11 +26,12 @@ struct effects_config {
   enum pattern pattern;
 };
 
-uint8_t shift = 5;  // start a little bit dimmer
+uint8_t shift = 1;  // start a little bit dimmer
 
 uint32_t bump_amount = 0;
 uint8_t bumped = 0;
 unsigned int bumptime = 0;
+unsigned int soundtime = 0;
 unsigned long reftime = 0;
 unsigned long reftime_tau = 0;
 unsigned long offset = 0;
@@ -299,7 +303,7 @@ static void testPatternFB(void *fb, int count, int loop) {
     if (++i >= count) break;
   }
 #endif
-#if 0
+#if 1
   while (i < count) {
     if (loop & 1) {
       /* Black */
@@ -323,14 +327,8 @@ static void testPatternFB(void *fb, int count, int loop) {
     }
   }
 #endif
-  int threshold = (phageAdcGet() * count / 4096);
-  for (i = 0; i < count; i++) {
-    if (i > threshold)
-      ledSetRGB(fb, i, 255, 0, 0, shift);
-    else
-      ledSetRGB(fb, i, 0, 0, 0, shift);
-  }
 }
+
 
 static void shootPatternFB(void *fb, int count, int loop) {
   int i;
@@ -449,6 +447,74 @@ static uint32_t asb_l(int i) {
   if (i > 0)
       return i;
   return -i;
+}
+
+#define SOUND_TIMEOUT 1500
+static void vuFB(void *fb, int count, int loop) {
+  int i;
+  int threshold;
+  uint16_t adcval = (uint16_t) phageAdcGet();
+  uint16_t bright;
+  int count_mask;
+  Color c;
+  unsigned long curtime, curtime_w;
+  uint32_t alpha;
+  uint8_t safetymode = 0;
+
+  curtime = chVTGetSystemTime();
+
+  // wave
+  curtime_w = curtime + offset;
+  if( (curtime_w - reftime) > VU_T_PERIOD )
+    reftime = curtime_w;
+
+  offset += 25; // rate of wave propagation
+  if( offset > 0x80000000) {
+    offset = 0;
+    curtime_w = chVTGetSystemTime();
+    reftime = curtime_w;
+  }
+  // wave
+
+  bright = updateVu(adcval);
+
+  count_mask = count & 0xff;
+  loop = loop % (256 * 5);
+  
+  threshold = (bright * 90) / 255;  // instead of count, fix to 60 max length
+
+  if( threshold > 4 ) 
+    soundtime = chVTGetSystemTime();
+
+  if( curtime - soundtime > SOUND_TIMEOUT ) { // when no sound, just light things up, for safety
+    safetymode = 1;
+    threshold = count;
+  }
+
+  for (i = 0; i < count; i++) {
+    bright = updateVu(adcval);
+
+    if (i < threshold) {
+
+      if( safetymode ) {
+	c.r = 128; c.g = 0; c.b = 128;
+
+	alpha = (uint8_t) (sinLUT[ (((i * VU_X_PERIOD * 255) / (count - 1))  +
+				    ( (255 * (curtime_w - reftime)) / VU_T_PERIOD ) ) % 256]);
+	alpha = alpha * alpha;
+	alpha = (alpha >>8) & 0xFF;
+	c = alphaPix(c, (uint8_t) alpha & 0xFF);
+      } else {
+	c = Wheel( (i * (256 / count_mask) + loop) & 0xFF );
+      }
+
+      ledSetColor(fb, i, c, shift);
+    } else {
+      ledSetRGB(fb, i, 0, 0, 0, shift);
+    }
+  }
+
+
 }
 
 #define DROP_INT 600
@@ -618,6 +684,8 @@ static int draw_pattern(struct effects_config *config) {
       raindropFB(config->fb, config->count, config->loop);
     } else if( config->pattern == patternRainbowdrop ) {
       rainbowDropFB(config->fb, config->count, config->loop);
+    } else if( config->pattern == patternVu ) {
+      vuFB(config->fb, config->count, config->loop);
     } else {
       testPatternFB(config->fb, config->count, config->loop);
     }

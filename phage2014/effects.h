@@ -6,6 +6,7 @@ enum pattern {
   patternStrobe,
   patternRaindrop,
   patternRainbowdrop,
+  patternVu,
   patternWaveRainbow,
   patternTest,
   patternDirectedRainbow,

@@ -38,7 +38,7 @@ static msg_t ui_thread(void *arg) {
       // check everything else here
       if(!palReadPad(GPIOA, PA13)) {
         //ledDriverPause();
-        chprintf(stream, "x");
+	//        chprintf(stream, "x");
         radioSend('x');
         chThdSleepMilliseconds(50);  // an extra sleep here to prevent spamming
         //ledDriverResume();
@@ -53,5 +53,5 @@ static msg_t ui_thread(void *arg) {
 void phageUiInit(void) {
 
   chThdCreateStatic(waUiThread, sizeof(waUiThread),
-                    NORMALPRIO-10, ui_thread, NULL);
+                    NORMALPRIO-20, ui_thread, NULL);
 }

@@ -120,6 +120,7 @@ CSRC = $(PORTSRC) \
        phage-events.c \
        phage-wdt.c \
        phage-ui.c \
+       dsp.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

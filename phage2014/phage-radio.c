@@ -157,12 +157,12 @@ uint32_t radioGetAddress(void) {
   return currAddr;
 }
 
-void radioGetStatus(uint8_t buf[11]) {
-  uint8_t tbuf[11];
+void radioGetStatus(uint8_t buf[12]) {
+  uint8_t tbuf[12];
   tbuf[0] = 0x10;
 
   radio_select();
-  radio_lld_txrx(11, tbuf, buf);
+  radio_lld_txrx(12, tbuf, buf);
   radio_unselect();
 }
 
@@ -177,8 +177,8 @@ void radioGetRxPayload(uint8_t buf[3]) {
 
 void radioStart(void)
 {
-  uint8_t dat[11];
-  uint8_t rdat[11];
+  uint8_t dat[12];
+  uint8_t rdat[12];
 
   radio_spi_start(radio, &spiConfig);
   radio_unselect();
@@ -230,8 +230,9 @@ void radioStart(void)
   dat[8] = 0x4D;
   dat[9] = 0x03;
   dat[10] = 0x5B;
+  dat[11] = 0x5B;
   radio_select();
-  radio_lld_txrx(11, dat, rdat);
+  radio_lld_txrx(12, dat, rdat);
   radio_unselect();
 
   dat[0] = 0x22; /* Write TX address.*/
@@ -239,8 +240,9 @@ void radioStart(void)
   dat[2] = 0x4D;
   dat[3] = 0x4D;
   dat[4] = 0x03;
+  dat[5] = 0x03;
   radio_select();
-  radio_lld_txrx(5, dat, rdat);
+  radio_lld_txrx(6, dat, rdat);
   radio_unselect();
 
   /* Set to receive mode (TX_EN low).*/
