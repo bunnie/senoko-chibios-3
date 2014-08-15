@@ -443,6 +443,38 @@ static void directedRainbowFB(void *fb, int count, int loop) {
   }  
 }
 
+#define BLINK_RATE 500
+static void redSafetyFB(void *fb, int count, int loop) {
+  unsigned long curtime;
+  uint32_t i;
+  Color c, b;
+  static int modulus = 0;
+  
+  curtime = chVTGetSystemTime() + offset;
+  if( (curtime - reftime) > BLINK_RATE ) {
+    reftime = curtime;
+    modulus++;
+    modulus %= 2;
+  }
+
+  c.r = 255; c.g = 0; c.b = 0;
+  b.r = 0; b.g = 0; b.b = 0;
+
+  for( i = 0; i < (uint32_t) count; i++ ) {
+    if( modulus ) {
+      if( i % 2 )
+	ledSetColor(fb, i, c, shift);
+      else
+	ledSetColor(fb, i, b, shift);
+    } else {
+      if( i % 2 )
+	ledSetColor(fb, i, b, shift);
+      else
+	ledSetColor(fb, i, c, shift);
+    }
+  }  
+}
+
 static uint32_t asb_l(int i) {
   if (i > 0)
       return i;
@@ -686,6 +718,8 @@ static int draw_pattern(struct effects_config *config) {
       rainbowDropFB(config->fb, config->count, config->loop);
     } else if( config->pattern == patternVu ) {
       vuFB(config->fb, config->count, config->loop);
+    } else if( config->pattern == patternRedSafety ) {
+      redSafetyFB( config->fb, config->count, config->loop );
     } else {
       testPatternFB(config->fb, config->count, config->loop);
     }

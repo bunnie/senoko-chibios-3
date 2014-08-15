@@ -4,6 +4,7 @@
 enum pattern {
   patternCalm = 0,
   patternStrobe,
+  patternRedSafety,
   patternRaindrop,
   patternRainbowdrop,
   patternVu,
