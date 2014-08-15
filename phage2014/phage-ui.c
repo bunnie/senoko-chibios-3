@@ -22,7 +22,7 @@ static msg_t ui_thread(void *arg) {
       // data receive gets highest prio
       radioGetRxPayload(rxbuf);
       //      chprintf( stream, "%02x ", rxbuf[2] );
-      if( rxbuf[2] == 'x' ) {
+      if( rxbuf[2] == 'x' || rxbuf[2] == 'y' || rxbuf[2] == 'a') {
         palWritePad(GPIOA, PA2, PAL_HIGH);
         palWritePad(GPIOA, PA3, PAL_HIGH);
         oldpat = effectsGetPattern();
