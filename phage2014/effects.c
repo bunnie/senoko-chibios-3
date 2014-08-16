@@ -491,7 +491,7 @@ static void vuFB(void *fb, int count, int loop) {
   Color c;
   unsigned long curtime, curtime_w;
   uint32_t alpha;
-  uint8_t safetymode = 0;
+  uint8_t safetymode = 1;
 
   curtime = chVTGetSystemTime();
 
@@ -508,7 +508,7 @@ static void vuFB(void *fb, int count, int loop) {
   }
   // wave
 
-  bright = updateVu(adcval);
+  //  bright = updateVu(adcval);
 
   count_mask = count & 0xff;
   loop = loop % (256 * 5);
@@ -524,7 +524,7 @@ static void vuFB(void *fb, int count, int loop) {
   }
 
   for (i = 0; i < count; i++) {
-    bright = updateVu(adcval);
+    //    bright = updateVu(adcval);
 
     if (i < threshold) {
 

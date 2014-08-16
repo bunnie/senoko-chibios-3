@@ -166,17 +166,15 @@ static const EXTConfig ext_config ={
     {EXT_CH_MODE_DISABLED, NULL},         /* Px1  */
     {EXT_CH_MODE_DISABLED, NULL},         /* Px2  */
     {EXT_CH_MODE_DISABLED, NULL},         /* Px3  */
-    {EXT_CH_MODE_BOTH_EDGES               /* Px4  */
+    {EXT_CH_MODE_BOTH_EDGES               /* Px4  */    // user0
         | EXT_CH_MODE_AUTOSTART
         | EXT_MODE_GPIOB, gpio_callback},
-    {EXT_CH_MODE_BOTH_EDGES               /* Px5  */
+    {EXT_CH_MODE_BOTH_EDGES               /* Px5  */    // reflash
         | EXT_CH_MODE_AUTOSTART
         | EXT_MODE_GPIOB, gpio_callback},
     {EXT_CH_MODE_DISABLED, NULL},         /* Px6  */
     {EXT_CH_MODE_DISABLED, NULL},         /* Px7  */
-    {EXT_CH_MODE_BOTH_EDGES               /* Px8  */
-        | EXT_CH_MODE_AUTOSTART
-        | EXT_MODE_GPIOA, gpio_callback},
+    {EXT_CH_MODE_DISABLED, NULL},
     {EXT_CH_MODE_DISABLED, NULL},         /* Px9  */
     {EXT_CH_MODE_DISABLED, NULL},         /* Px10 */
     //    {EXT_CH_MODE_BOTH_EDGES               /* Px11 */
@@ -187,13 +185,12 @@ static const EXTConfig ext_config ={
     //        | EXT_CH_MODE_AUTOSTART
     //        | EXT_MODE_GPIOA, gpio_callback},
     {EXT_CH_MODE_DISABLED, NULL},         /* Px12 */
-    {EXT_CH_MODE_BOTH_EDGES               /* Px13 */
-        | EXT_CH_MODE_AUTOSTART
-        | EXT_MODE_GPIOA, gpio_callback},
-    {EXT_CH_MODE_BOTH_EDGES               /* Px14 */
-        | EXT_CH_MODE_AUTOSTART
-        | EXT_MODE_GPIOB, gpio_callback},
-    {EXT_CH_MODE_BOTH_EDGES               /* Px15 */
+    //    {EXT_CH_MODE_BOTH_EDGES               /* Px13 */    // user2, this is polled
+    //        | EXT_CH_MODE_AUTOSTART
+    //        | EXT_MODE_GPIOA, gpio_callback},
+    {EXT_CH_MODE_DISABLED, NULL},         /* Px13 */
+    {EXT_CH_MODE_DISABLED, NULL},         /* Px14 */
+    {EXT_CH_MODE_BOTH_EDGES               /* Px15 */    // user1
         | EXT_CH_MODE_AUTOSTART
         | EXT_MODE_GPIOA, gpio_callback},
   }

@@ -13,37 +13,76 @@ static msg_t ui_thread(void *arg) {
   (void)arg;
   uint8_t rxbuf[3];
   enum pattern oldpat;
+  uint8_t s;
+
+  int keyleft = 0;
+  int keyright = 1;
+  int keydown = 1;
 
   chRegSetThreadName("ui polling thread");
 
   while (1) {
-    if(palReadPad(GPIOA, PA11)) {
+    // check everything else here
+    if(!palReadPad(GPIOA, PA13)) {
+      palWritePad(GPIOA, PA2, PAL_HIGH);
+      palWritePad(GPIOA, PA3, PAL_HIGH);
       //ledDriverPause();
-      // data receive gets highest prio
-      radioGetRxPayload(rxbuf);
-      //      chprintf( stream, "%02x ", rxbuf[2] );
-      if( rxbuf[2] == 'x' || rxbuf[2] == 'y' || rxbuf[2] == 'a') {
-        palWritePad(GPIOA, PA2, PAL_HIGH);
-        palWritePad(GPIOA, PA3, PAL_HIGH);
-        oldpat = effectsGetPattern();
-        effectsSetPattern(patternStrobe);
-        chThdSleepMilliseconds(200);
-        palWritePad(GPIOA, PA2, PAL_LOW);
-        palWritePad(GPIOA, PA3, PAL_LOW);
-        effectsSetPattern(oldpat);
-      }
+      //        chprintf(stream, "x");
+#if 0
+      radioSend('x');
+      chThdSleepMilliseconds(50);  // an extra sleep here to prevent spamming
+#endif
       //ledDriverResume();
+    } else {
+      palWritePad(GPIOA, PA2, PAL_LOW);
+      palWritePad(GPIOA, PA3, PAL_LOW);
     }
-    else {
-      // check everything else here
-      if(!palReadPad(GPIOA, PA13)) {
-        //ledDriverPause();
-	//        chprintf(stream, "x");
-        radioSend('x');
-        chThdSleepMilliseconds(50);  // an extra sleep here to prevent spamming
-        //ledDriverResume();
+
+    if( (palReadPad(GPIOB, PB5) == PAL_HIGH) ) {
+      if (keyleft == 0) {
+	chThdSleepMilliseconds(20); // debounce time
+	keyleft = 1;
+
+	effectsPrevPattern();
+      } else {
+	keyleft = 1;
       }
+    } else {
+      keyleft = 0;
     }
+
+    // opposite polarity
+    if( (palReadPad(GPIOB, PB4) == PAL_LOW) ) {
+      if (keyright == 1) {
+	chThdSleepMilliseconds(20); // debounce time
+	keyright = 0;
+
+	effectsNextPattern();
+      } else {
+	keyright = 0;
+      }
+    } else {
+      keyright = 1;
+    }
+
+    if( (palReadPad(GPIOA, PA15) == PAL_LOW) ) {
+      if (keydown == 1) {
+	chThdSleepMilliseconds(20); // debounce time
+	keydown = 0;
+
+	s = getShift();
+	if (s > 3)
+	  s = 0;
+	s++;
+	setShift(s);
+	
+      } else {
+	keydown = 0;
+      }
+    } else {
+      keydown = 1;
+    }
+
 
     chThdSleepMilliseconds(30);
   }

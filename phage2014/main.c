@@ -201,15 +201,15 @@ int main(void) {
   chEvtRegister(&shell_terminated, &event_listeners[0], 0);
 
   /* Listen to GPIO events (e.g. button presses, status changes).*/
-#if 1
+#if 0
   phageEventsInit();
-  chEvtRegister(&power_button_pressed, &event_listeners[1], 1);
-  chEvtRegister(&power_button_released, &event_listeners[2], 2);
-  chEvtRegister(&accel_int1, &event_listeners[3], 3);
-  chEvtRegister(&accel_int2, &event_listeners[4], 4);
+  //  chEvtRegister(&power_button_pressed, &event_listeners[1], 1);
+  //  chEvtRegister(&power_button_released, &event_listeners[2], 2);
+  //  chEvtRegister(&accel_int1, &event_listeners[3], 3);
+  //  chEvtRegister(&accel_int2, &event_listeners[4], 4);
   chEvtRegister(&key_up_pressed, &event_listeners[5], 5);
   chEvtRegister(&key_down_pressed, &event_listeners[6], 6);
-  chEvtRegister(&key_left_pressed, &event_listeners[7], 7);
+  //  chEvtRegister(&key_left_pressed, &event_listeners[7], 7);
   chEvtRegister(&key_right_pressed, &event_listeners[8], 8);
   //  chEvtRegister(&radio_carrier_detect, &event_listeners[9], 9);
   //  chEvtRegister(&radio_data_received, &event_listeners[10], 10);
@@ -221,22 +221,28 @@ int main(void) {
       PHAGE_OS_VERSION_MINOR,
       gitversion);
 
+#if 0
   /* Start I2C, which is necessary for accelerometer.*/
   phageI2cInit();
 
   /* Now that I2C is running, start the accelerometer.*/
   phageAccelInit();
+#endif
 
   /* Start the Phage watchdog timer thread.*/
   phageWatchdogInit();
 
+#if 0
   phageAdcInit();
   startupVu();
+#endif
 
   /* Start LED effects.*/
   effectsStart(framebuffer, LED_COUNT);
 
+#if 0
   radioStart();
+#endif
 
   /* Enter main event loop.*/
   phageShellRestart();
@@ -249,10 +255,12 @@ int main(void) {
 
   debugme();
 
+#if 0
   uint8_t rxbuf[3];
   radioGetRxPayload(rxbuf);  // one-time call to fix transmit issue
 
   radioSend('z'); // waking up, send an off-character
+#endif
 
   while (TRUE) 
     chEvtDispatch(event_handlers, chEvtWaitOne(ALL_EVENTS));
